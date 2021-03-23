@@ -3,7 +3,7 @@ require(Cairo) #paquete para generar PDFs
 #el archivo de datos es muy grande y lo tuve que compartir en el Drive
 #se puede bajar de este link: https://drive.google.com/file/d/18U5pLnFnQAu90YtyK31obCSOoDPa9ghn/view?usp=sharing
 #una vez que se baja a la compu se lee con la siguiente línea.
-trade_data <- read.csv("D:/BKP Mariano/MyDocs/Manuscritos/Working/food security/Trade_DetailedTradeMatrix_E_All_Data.csv")
+trade_data <- read.csv("D:/Manuel/food security/Trade_DetailedTradeMatrix_E_All_Data.csv")
 
 head(trade_data) #ver nombre de columnas y primeras filas
 trade_data <- trade_data[trade_data$Element=="Import Quantity",] #retener volúmenes, no valores 
@@ -90,7 +90,7 @@ require(Cairo) #paquete para generar PDFs
 #el archivo de datos es muy grande y lo tuve que compartir en el Drive
 #se puede bajar de este link: https://drive.google.com/file/d/18U5pLnFnQAu90YtyK31obCSOoDPa9ghn/view?usp=sharing
 #una vez que se baja a la compu se lee con la siguiente línea.
-trade_data <- read.csv("D:/BKP Mariano/MyDocs/Manuscritos/Working/food security/Trade_DetailedTradeMatrix_E_All_Data.csv")
+trade_data <- read.csv("D:/Manuel/food security/Trade_DetailedTradeMatrix_E_All_Data.csv")
 
 head(trade_data) #ver nombre de columnas y primeras filas
 trade_data <- trade_data[trade_data$Element=="Import Quantity",] #retener volúmenes, no valores 
