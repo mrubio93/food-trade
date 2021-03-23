@@ -1,0 +1,173 @@
+<<<<<<< HEAD
+require(Cairo) #paquete para generar PDFs
+#el archivo de datos es muy grande y lo tuve que compartir en el Drive
+#se puede bajar de este link: https://drive.google.com/file/d/18U5pLnFnQAu90YtyK31obCSOoDPa9ghn/view?usp=sharing
+#una vez que se baja a la compu se lee con la siguiente línea.
+trade_data <- read.csv("D:/BKP Mariano/MyDocs/Manuscritos/Working/food security/Trade_DetailedTradeMatrix_E_All_Data.csv")
+
+head(trade_data) #ver nombre de columnas y primeras filas
+trade_data <- trade_data[trade_data$Element=="Import Quantity",] #retener volúmenes, no valores 
+
+#crear una matriz global con todos los volúmenes de importación de todos los bienes
+nfilas <-  max(trade_data$Reporter.Country.Code)
+ncolumnas <- max(trade_data$Partner.Country.Code)
+
+trade_matrix_list <- lapply(1:32, matrix, data= 0, nrow=nfilas, ncol=ncolumnas)#create a list of 32 empty matrices (one per year) 
+
+for (i in 1:nrow(trade_data)){
+  reporter <- trade_data[i,1]
+  partner <- trade_data[i,3]
+  item <- trade_data[i,5] #esto por ahora no se usa
+  for (j in 10:41) {
+    one.year.trade <- trade_data[i,j]
+    trade_matrix_list[[j-9]][reporter,partner] <- trade_matrix_list[[j-9]][reporter,partner]+one.year.trade
+  }
+  print(paste(i, "líneas de", nrow(trade_data), "leídas", sep=" "))
+}
+
+#function to analyze all networks
+analysis <- function ()  {
+  require(bipartite);require(cluster)
+  n_metrics=8
+  index=c("number of species","nestedness","interaction evenness","H2", "robustness")
+  results <- matrix(NA,32,n_metrics)
+  rel.results <- matrix(NA,32,n_metrics)
+  for (i in 1:32) {
+    matr <- trade_matrix_list[[i]]
+    matr <- empty(matr)
+    print(paste("MATRIX ", i))
+    #print(matr)
+    if (nrow(matr) >= 2 & ncol(matr) >= 2) {
+      metrics <- c(networklevel(matr,index), sum(matr>0))
+      print(metrics)
+      results[i,] <- metrics
+    }
+  }
+  colnames(results)<-c("Nestedness", "Ieven", "H2", "Partners", "Reporters", "Rhigh", "Rlow", "Trich") #copy name tags to results.
+  return(results)
+}
+props <- as.data.frame(analysis())
+
+CairoPDF("trade_web_properties.pdf", 10, 10)
+  par(mfrow=c(3,3))
+  plot(1986:2017,props$Partners, xlab="year", ylab="Partners", cex.lab=1.2)
+  plot(1986:2017,props$Reporters, xlab="year", ylab="Reporters", cex.lab=1.2)
+  plot(1986:2017,props$Trich, xlab="year", ylab="Interaction richness", cex.lab=1.2)
+  plot(1986:2017,props$Ieven, xlab="year", ylab="Interaction evenness", cex.lab=1.2)
+  plot(1986:2017,props$Nestedness, xlab="year", ylab="Nestedness (T)", cex.lab=1.2)
+  plot(1986:2017,props$H2, xlab="year", ylab="Selectivity", cex.lab=1.2)
+  plot(1986:2017,props$Rhigh, xlab="year", ylab="R Partner", cex.lab=1.2)
+  plot(1986:2017,props$Rlow, xlab="year", ylab="R Importer", cex.lab=1.2)
+dev.off()
+
+#one item network (rice as an example)
+rice_data <- trade_data[trade_data$Item=="Rice - total  (Rice milled equivalent)",]
+Y2017_rice_data <- cbind(rice_data$Reporter.Country.Code,rice_data$Partner.Country.Code,rice_data$Y2017)
+Y2017_rice_data[is.na(Y2017_rice_data)] <- 0 #turn NAs to 0
+Y2017_rice_data <- Y2017_rice_data[(Y2017_rice_data[,3]>1000),] #keep only non-zero values 
+colnames(Y2017_rice_data) <- c("V1", "V2", "weight")
+el=Y2017_rice_data # read  the 'el.with.weights.csv' file
+
+#drawing in igraph
+library(igraph)
+colnames(Y2017_rice_data) <- c("V1", "V2", "weight")
+el=Y2017_rice_data # read  the 'el.with.weights.csv' file
+el[,1]=as.character(el[,1]) #Because the vertex IDs in this dataset are numbers, we make sure igraph knows these should be treated as characters. Otherwise, it'll create problems (see page on data import)
+el[,2]=as.character(el[,2])
+el=as.matrix(el) #igraph needs the edgelist to be in matrix format
+g=graph.edgelist(el[,1:2]) #create a network from the first two columns
+E(g)$weight=as.numeric(el[,3]) #add the edge weights
+
+CairoPDF("rice_web.pdf",100,100)
+plot(g, layout=layout.kamada.kawai, size=10)
+#plot(g, layout=layout.graphopt)
+#plot(g,layout=layout.fruchterman.reingold,edge.width=E(g)$weight/100)
+#plot(g,layout=layout_on_sphere,edge.width=E(g)$weight)
+dev.off()
+
+=======
+require(Cairo) #paquete para generar PDFs
+#el archivo de datos es muy grande y lo tuve que compartir en el Drive
+#se puede bajar de este link: https://drive.google.com/file/d/18U5pLnFnQAu90YtyK31obCSOoDPa9ghn/view?usp=sharing
+#una vez que se baja a la compu se lee con la siguiente línea.
+trade_data <- read.csv("D:/BKP Mariano/MyDocs/Manuscritos/Working/food security/Trade_DetailedTradeMatrix_E_All_Data.csv")
+
+head(trade_data) #ver nombre de columnas y primeras filas
+trade_data <- trade_data[trade_data$Element=="Import Quantity",] #retener volúmenes, no valores 
+
+#crear una matriz global con todos los volúmenes de importación de todos los bienes
+nfilas <-  max(trade_data$Reporter.Country.Code)
+ncolumnas <- max(trade_data$Partner.Country.Code)
+
+trade_matrix_list <- lapply(1:32, matrix, data= 0, nrow=nfilas, ncol=ncolumnas)#create a list of 32 empty matrices (one per year) 
+
+for (i in 1:nrow(trade_data)){
+  reporter <- trade_data[i,1]
+  partner <- trade_data[i,3]
+  item <- trade_data[i,5] #esto por ahora no se usa
+  for (j in 10:41) {
+    one.year.trade <- trade_data[i,j]
+    trade_matrix_list[[j-9]][reporter,partner] <- trade_matrix_list[[j-9]][reporter,partner]+one.year.trade
+  }
+  print(paste(i, "líneas de", nrow(trade_data), "leídas", sep=" "))
+}
+
+#function to analyze all networks
+analysis <- function ()  {
+  require(bipartite);require(cluster)
+  n_metrics=8
+  index=c("number of species","nestedness","interaction evenness","H2", "robustness")
+  results <- matrix(NA,32,n_metrics)
+  rel.results <- matrix(NA,32,n_metrics)
+  for (i in 1:32) {
+    matr <- trade_matrix_list[[i]]
+    matr <- empty(matr)
+    print(paste("MATRIX ", i))
+    #print(matr)
+    if (nrow(matr) >= 2 & ncol(matr) >= 2) {
+      metrics <- c(networklevel(matr,index), sum(matr>0))
+      print(metrics)
+      results[i,] <- metrics
+    }
+  }
+  colnames(results)<-c("Nestedness", "Ieven", "H2", "Partners", "Reporters", "Rhigh", "Rlow", "Trich") #copy name tags to results.
+  return(results)
+}
+props <- as.data.frame(analysis())
+
+CairoPDF("trade_web_properties.pdf", 10, 10)
+  par(mfrow=c(3,3))
+  plot(1986:2017,props$Partners, xlab="year", ylab="Partners", cex.lab=1.2)
+  plot(1986:2017,props$Reporters, xlab="year", ylab="Reporters", cex.lab=1.2)
+  plot(1986:2017,props$Trich, xlab="year", ylab="Interaction richness", cex.lab=1.2)
+  plot(1986:2017,props$Ieven, xlab="year", ylab="Interaction evenness", cex.lab=1.2)
+  plot(1986:2017,props$Nestedness, xlab="year", ylab="Nestedness (T)", cex.lab=1.2)
+  plot(1986:2017,props$H2, xlab="year", ylab="Selectivity", cex.lab=1.2)
+  plot(1986:2017,props$Rhigh, xlab="year", ylab="R Partner", cex.lab=1.2)
+  plot(1986:2017,props$Rlow, xlab="year", ylab="R Importer", cex.lab=1.2)
+dev.off()
+
+#one item network (rice as an example)
+rice_data <- trade_data[trade_data$Item=="Rice - total  (Rice milled equivalent)",]
+Y2017_rice_data <- cbind(rice_data$Reporter.Country.Code,rice_data$Partner.Country.Code,rice_data$Y2017)
+Y2017_rice_data[is.na(Y2017_rice_data)] <- 0 #turn NAs to 0
+Y2017_rice_data <- Y2017_rice_data[(Y2017_rice_data[,3]>1000),] #keep only non-zero values 
+colnames(Y2017_rice_data) <- c("V1", "V2", "weight")
+el=Y2017_rice_data # read  the 'el.with.weights.csv' file
+
+#drawing in igraph
+library(igraph)
+colnames(Y2017_rice_data) <- c("V1", "V2", "weight")
+el=Y2017_rice_data # read  the 'el.with.weights.csv' file
+el[,1]=as.character(el[,1]) #Because the vertex IDs in this dataset are numbers, we make sure igraph knows these should be treated as characters. Otherwise, it'll create problems (see page on data import)
+el[,2]=as.character(el[,2])
+el=as.matrix(el) #igraph needs the edgelist to be in matrix format
+g=graph.edgelist(el[,1:2]) #create a network from the first two columns
+E(g)$weight=as.numeric(el[,3]) #add the edge weights
+
+CairoPDF("rice_web.pdf",100,100)
+plot(g, layout=layout.kamada.kawai, size=10)
+#plot(g, layout=layout.graphopt)
+#plot(g,layout=layout.fruchterman.reingold,edge.width=E(g)$weight/100)
+#plot(g,layout=layout_on_sphere,edge.width=E(g)$weight)
+dev.off()
